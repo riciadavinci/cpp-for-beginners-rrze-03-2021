@@ -30,43 +30,79 @@ using Ints = std::vector<int>;
 
 void printToScreen( Ints const& ints )
 {
-   // TODO
+   for(const auto i : ints){
+      std::cout << " " << i;
+   }
+   std::cout << "\n";
 }
 
 
 void reverseOrder( Ints& ints )
 {
-   // TODO
+   std::reverse(ints.begin(), ints.end());
+   printToScreen(ints);
 }
 
 
 void findFirstFive( Ints const& ints )
 {
-   // TODO
+   auto pos = std::find(ints.begin(), ints.end(), 5);
+   // If iterator did not find the value, pos will take "end" value,
+   // which is not valid. Hence, we need the following check
+   if(pos != ints.end()){
+      // Manually:
+      // const auto dist = pos - ints.begin();
+
+      // from Standard Library
+      const auto dist = std::distance(ints.begin(), pos);
+      
+      // Here, the type of dist is ptrdiff_t: pointer difference
+      // sort of similar to size_t
+
+      std::cout << "Found the value " << *pos 
+                << " at index: " << dist << "\n";
+   } else {
+      std::cout << "Did not find it!\n";
+   }
+   
 }
 
 
 void countNumberOfFives( Ints const& ints )
 {
-   // TODO
+   const auto fives = std::count(ints.begin(), ints.end(), 5);
+   // Here fives will be of type size_t
+   std::cout << "Number of fives: " << fives << "\n";
 }
 
 
 void replaceAllFivesWithTwos( Ints& ints )
 {
-   // TODO
+   std::replace(ints.begin(), ints.end(), 5, 2);
+   printToScreen(ints);
 }
 
 
 void sortInts( Ints& ints )
 {
-   // TODO
+   std::sort(ints.begin(), ints.end());
+   printToScreen(ints);
 }
 
 
 void findAllTwos( Ints const& ints )
 {
    // TODO
+   // The functions "lower_bounds" and "upper_bounds"
+   // they are combined into a function "equal_range"
+   const auto range =  std::equal_range(ints.begin(), ints.end(), 2);
+   // here, range of type pairs
+   // the "first" will point to the first "2" and
+   // the "second" will point to the element after last "2"
+   // So, it returns both the "upper bound" and "lower bound" 
+
+   std::cout << "First element: " << *(range.first) << "\n"
+             << "Second element: " << *(range.second) << "\n";
 }
 
 

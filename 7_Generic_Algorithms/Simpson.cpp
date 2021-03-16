@@ -47,49 +47,101 @@ std::ostream& operator<<( std::ostream& os, Person const& person )
 }
 
 
+// --------------------------------------------------------------------------------
+// Implementing a Class that replicates Lambda Function of comparing ages of 2 Persons
+
+class IsYounger{
+   public:
+   // No need to write inline, since the compiler will consider it to be inline anyways
+   // coz it is the best to do it here
+   bool operator()(const Person& a, const Person& b ) const {
+      return a.age < b.age;
+   }
+};
+
+
+
+
+
+// --------------------------------------------------------------------------------
 
 
 void print( const std::vector<Person>& table )
 {
    // TODO: Print all characters to the screen
+   for(const Person& person: table){
+      std::cout << person << "\n";
+   }
+   std::cout << "\n";
 }
+
+// --------------------------------------------------------------------------------
+// Implement the following without using for, while, do while loops or goto statements
+// Just use algorithms from STL
 
 void random_order( std::vector<Person>& table )
 {
    // TODO: Randomize their order ('r')
+   // mt = Mersenne Twister => Randon Number Generator
+   std::random_device rd;
+   std::mt19937 mt(rd());
+   std::shuffle(table.begin(), table.end(), mt);
 }
 
 void find_youngest( const std::vector<Person>& table )
 {
    // TODO: Find the youngest character ('y')
-   //const auto pos = ...;
-   //std::cout << "Youngest person = " << pos->firstname << " " << pos->lastname << "\n";
+   const auto pos = std::min_element(table.begin(), table.end(), IsYounger{});
+   std::cout << "Youngest person = " << pos->firstname << " " << pos->lastname << "\n";
 }
 
 void order_by_firstname( std::vector<Person>& table )
 {
    // TODO: Order them by first name ('f')
+   std::sort(table.begin(), table.end(), [](const Person& a, const Person& b){
+      return a.firstname < b.firstname;
+   });
 }
 
 void order_by_lastname( std::vector<Person>& table )
 {
    // TODO: Order them by last name while preserving the order between equal elements ('l')
+   // Stable Sort!
+   std::stable_sort(table.begin(), table.end(), [](const Person& a, const Person& b){
+      return a.lastname < b.lastname;
+   });
 }
 
 void order_by_age( std::vector<Person>& table )
 {
    // TODO: Order them by age while preserving the order between equal elements ('a')
+   // Stable Sort!
+   std::stable_sort(table.begin(), table.end(), IsYounger{});
 }
 
 void simpsons_first( std::vector<Person>& table )
 {
    // TODO: Put all Simpsons first without affecting the general order of characters ('s')
+   std::stable_partition(table.begin(), table.end(), [](const Person& p){
+      return p.lastname == "Simpson";
+   });
+
 }
 
 void compute_total_age( const std::vector<Person>& table )
 {
    // TODO: Compute the total age of all characters ('t')
-   const int age = 0;
+   // use accumulate
+
+   // The 3rd Param here is being accumulated
+   // Since we want int, we set it as 0
+   // If you want to accumulate a float or double,
+   // you should write 0.0F or 0.0 respectively
+   // The 1st param of the Lambda is the return value of the "accumulate" function 
+   const int age = std::accumulate(table.begin(), table.end(), 0,[](const int accu, const Person& p){
+      return accu + p.age;
+   });
+
    std::cout << "Total age = " << age << "\n";
 }
 
@@ -97,6 +149,15 @@ void third_oldest( std::vector<Person>& table )
 {
    // TODO: Determine the third oldest character as quickly as possible ('3')
    //       Note that you are allowed to change the order of characters.
+
+   // This is an example of a Pruning Algorithm
+   // Here, for the 3rd oldest element, the algorithm shuffles the list such that
+   // This 3rd oldest Person (by Age) comes to 3rd position with older 2 above it
+   // and rest of the younger that it are placed below it!
+
+   std::nth_element(table.begin(), table.begin()+2, table.end(), [](const Person& a, const Person& b){
+      return a.age > b.age;
+   });
 }
 
 
