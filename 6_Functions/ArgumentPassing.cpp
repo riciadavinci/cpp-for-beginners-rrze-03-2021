@@ -37,15 +37,32 @@ void passByReferenceToConst(const std::string& s){
    // This is best of both worlds!
    // It is not only FAST, but also PREVENTS us from EDITING
    // the original object
+   // This can be done 90% of the time
 
    // s = "Changed string"; // This will not work!
 }
 
+// The above function can also be written as:
+void passByReference(const std::string& s){/* ... */}
+
 // Write a function that takes its argument by pointer
-// TODO
+void passByPointer(std::string* s){
+   if(s != nullptr){
+      // Then do stuff!
+      // ex:
+      *s = "Changed string";
+   }
+}
 
 // Write a function that takes its argument by pointer-to-const
-// TODO
+void passByPointerToConst(const std::string* s){
+   if(s != nullptr){
+      // even if pointer to obj is not null, we cannot change it
+      // since it is a pointer to const object (immutable object)
+      // Ex.:
+      // *s = "Changed String";     // This won't work!
+   }
+}
 
 
 int main()
@@ -73,12 +90,16 @@ int main()
 
    // Pass-by-pointer
    {
-      // TODO
+      std::string s("Original String");
+      passByPointer(&s);
+      std::cout << "s = " << s << "\n";
    }
 
    // Pass-by-pointer-to-const
    {
-      // TODO
+      std::string s("Original String");
+      passByPointerToConst(&s);
+      std::cout << "s = " << s << "\n";
    }
 
    return EXIT_SUCCESS;

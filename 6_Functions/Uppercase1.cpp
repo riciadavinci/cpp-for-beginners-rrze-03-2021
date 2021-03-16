@@ -20,12 +20,42 @@
 
 
 // TODO: Implement the 'hasUppercase()' function
+// using std::isupper(char)
 
+bool hasUppercase(const std::string& s){
+   // Index Based Solution:
+   /*
+   const size_t str_size = s.size();
+   for(size_t i = 0U; i < str_size; ++i){
+      if(std::isupper(s[i])){
+         return true;
+      }
+   }
+   */
 
+   // Iterator Based Solution:
+   /*
+   for(auto it = s.begin(); it != s.end() ; ++it){
+      if(std::isupper(*it)){
+         return true;
+      }
+   }
+   */
+
+   // Range Based Solution:
+   // const added since we don't want to modify the character!!
+   for(const auto ch : s){
+      if(std::isupper(ch)){
+         return true;
+      }
+   }
+
+   return false;
+}
 
 int main()
 {
-   /*
+   
    std::string s;
 
    while( std::cin >> s )
@@ -39,7 +69,7 @@ int main()
          std::cout << " does not contain any uppercase characters!\n";
       }
    }
-   */
+   
 
    return EXIT_SUCCESS;
 }
