@@ -24,44 +24,50 @@
 
 ---
 
-#### Day 1:
+### Day 1:
+_**15-03-2021**_
 
-Q. How does \n differ from std::endl ?
-A. \n is just the special leinebrak character. std::endl inserts the linebreak character, and also "flushes the output buffer", that means that it will immediately print what you've put into cout
+<br>
+
+**Q.** How does \n differ from std::endl ?
+> \n is just the special leinebrak character. std::endl inserts the linebreak > >  character, and also "flushes the output buffer", that means that it will immediately print what you've put into cout
 cout might buffer its contents for a while for performance reasons (it is faster to output a whole bunch of data at once instead of single characters), so your printing might be delayed, but that happens only in special circumstances
-There should not be any limit to printing via cout
+There should not be any limit to printing via cout.
 
+<br>
 
-Q. Is there a way to check for overflow ? To see if the result does not go over the maximum limit an integer could hold
-A. It's somewhat difficult. Overflowing a signed int is undefined behaviour. In practice, it will usually wrap around to negative values.
+**Q.** Is there a way to check for overflow ? To see if the result does not go over the maximum limit an integer could hold
+> It's somewhat difficult. Overflowing a signed int is undefined behaviour. In practice, it will usually wrap around to negative values.
 https://stackoverflow.com/questions/3944505/detecting-signed-overflow-in-c-c 
 Extended reading. C++ and C behave the same here.
 
+<br>
 
-Q. when will I use i++ vs. ++i?
-A. i++ increments the value, and returns the incremented value. ++i returns the value, and then increments it
+**Q.** when will I use i++ vs. ++i?
+> `i++` increments the value, and returns the incremented value. `++i` returns the value, and then increments it.
 It is a practically rather irrelevant distinction, as it only matters if you use the return value of a decrement/increment operation, which you should just don't do.
-int i = 10;
-int a = i++;
+`int i = 10;`
+`int a = i++;`
 is different from:
-int i = 10;
-int a = ++i;
-a will have different values in these examples
-i will be 11 both times
-At the end of a for loop, it does not matter, you can use both
-++i or i++
-and you will see both in code bases
+`int i = 10;`
+`int a = ++i;`
+`i` will have different values in these examples
+`i` will be 11 both times
+At the end of a for loop, it does not matter, you can use both `++i` or `i++`
+and you will see both in code bases. But `++i` is preferred.
+
+<br>
+
+**Q.** Does `sizeof()` output number of bits or bytes?
+> It outputs number of bytes.
 
 
-Q. Does `sizeof()` output number of bits or bytes?
-A. It outputs number of bytes.
+<br>
 
+**Tip:**
+>When representing numbers with modifiers like long, float, unsigned, etc. use capital letters, because they improve readability.
 
-Tip:
-When representing numbers with modifiers like long, float, unsigned, etc. use capital letters, because they improve readability.
-
-Ex.
-
+_Ex._
 Use these:
 ```C++
 int i = 1;
@@ -89,21 +95,19 @@ long double ld = 10.0l;
 
 double e = 1e2;
 ```
-This is because as an example - the l may be read as 1 by the developer.
+> This is because as an example - the l may be read as 1 by the developer.
 
+>Also, `1E2` is the same as `10E1`.
 
-Also, `1E2` is the same as `10E1`.
-
-
-If you need a specific size (e.g. 1 byte or 2 bytes) then you can use int8_t or int16_t. uint8_t and uint16_t are the unsigned pendants.
+>If you need a specific size (e.g. 1 byte or 2 bytes) then you can use int8_t or int16_t. uint8_t and uint16_t are the unsigned pendants.
 These types usually serve as type aliases to the types that I mentioned before. I’ll show you later how you can create type aliases yourself.
 
+<br>
 
 **Something on References:**
+> References are similar to constant pointers to objects. You can change the underlying values of the objects being referred (aliased), but you cannot reassign the reference.
 
-References are similar to constant pointers to objects. You can change the underlying values of the objects being referred (aliased), but you cannot reassign the reference.
-
-Ex.
+_Ex._
 ```C++
 int i = 1;
 int& j = i;     // GOOD: you need to initialize references when declaring
@@ -111,10 +115,10 @@ int& j = i;     // GOOD: you need to initialize references when declaring
 int& k;         // BAD: Compiler will warn you!
 ```
 
-
+<br>
 
 **Stay away from Double Pointers!**
-Ex.
+_Ex._
 ```C++
 int i = 1;
 
@@ -125,45 +129,51 @@ int** ppi = &pi;    // ppi = pointer to pi
 
 ```
 
+<br>
 
-Q. Are "int*    pi = &i" and "int    *pi = &i" the same while initialising? 
-what is the best practice?
-A. They are both equivalent. There is again two different camps for that question.
-The int* i school says that the * belongs to the type.
-The int *i school tries to avoid a small pitfall when declaring multiple pointers:
-int* p1, p2, p3, p4;
-declares p1 as an integer pointer, and p2, p3 p4 as integers
+**Q.** Are `int* pi = &i` and `int *pi = &i` the same while initialising?  what is the best practice?
+> They are both equivalent. There is again two different camps for that question.
+The `int* i` school says that the `*` belongs to the type.
+The `int *i` school tries to avoid a small pitfall when declaring multiple pointers:
+`int* p1, p2, p3, p4;`
+declares `p1` as an integer pointer, and `p2, p3 p4` as integers
 Correct would have been
-int *p1, *p2, *p3;
+`int *p1, *p2, *p3;`
 which is much clearer when the * sticks to the variable
 
+<br>
 
-**Self-Study:** Check out _small string optimization_
+**Self-Study:** Check out _**small string optimization**_
 
+<br>
 
-Q. The referenced version (with ampersand) is therefore also more memory and speed efficient in comparison to non-ampersand (non-referenced version), is it?
-A. That depends. If you have a vector of int, then the reference itself is a 64bit pointer internally. So accessing it takes longer than if you had a 32bit int directly
+**Q.** The referenced version (with ampersand) is therefore also more memory and speed efficient in comparison to non-ampersand (non-referenced version), is it?
+> That depends. If you have a vector of int, then the reference itself is a 64bit pointer internally. So accessing it takes longer than if you had a 32bit int directly
 If you iterate over types representing e.g. an image, then using a reference is much faster, as you will not copy large amounts of data every time.
 This kind of implicit copying of large data structures is imho the number one performance bug in C++ code bases.
 
+<br>
 
-Q. ok, so if i want to optimize the runtime, i will have to pay attention to the sizes of my data and be sure to use references for everything with 64bit and larger
-A. As long as the data type does not allocate dynamically, a copy is fine. So for all primitive types (int, double, char ...) use copy, and also for structs.
+**Q.** ok, so if i want to optimize the runtime, i will have to pay attention to the sizes of my data and be sure to use references for everything with 64bit and larger
+> As long as the data type does not allocate dynamically, a copy is fine. So for all primitive types (int, double, char ...) use copy, and also for structs.
 For classes like string or vector, use a reference
 If you want to modify the contents of the container, you need a reference anyway
 So I actually change my advise to "always use a reference". The compiler should be able to figure it out where it could matter (and it usually doesn't)
 
+<br>
 
-Q. A reference to std::vector<int> would be 64 bits while a refernce to int would be 32 bits. Is that what you meant ?
-A. A reference always has the size of a pointer. If the compiler even puts it on the stack! Which it might not.
+**Q.** A reference to std::vector<int> would be 64 bits while a refernce to int would be 32 bits. Is that what you meant ?
+> A reference always has the size of a pointer. If the compiler even puts it on the stack! Which it might not.
 sizeof(std::vector<int>&)  is the same as sizeof(int&)
 A good reference link: https://godbolt.org/z/Yh6YbK. 
 I have two functions, that do a sum over a vector, once with a copy, once with references.
 If you look at the assembly code at the right, the generated assembly is identical!
 
+<br>
 
-Q. How to see type of the variable?
-A. Use `typeid` function. Ex.
+**Q.** How to see type of the variable?
+**A.** Use `typeid` function.
+_Ex._
 ```C++
 auto a = 4;
 auto b = false;
@@ -174,9 +184,22 @@ std::cout << "a: " << typeid(a).name() << "\n"
           << "c: " << typeid(c).name() << "\n";
 ```
 
+<br>
 
 **Concept:** _One Definition Rule (ODR)_
+>Define a function only once. No other place (within the same file or any other files within the program) may have an implementation of that function.
 
-Define a function only once. No other place (within the same file or any other files within the program) may have an implementation of that function.
+---
+<br>
+
+### Day 2
+_**16-03-2021**_
+
+<br>
+
+
+
+
+
 
 
