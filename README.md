@@ -187,7 +187,7 @@ std::cout << "a: " << typeid(a).name() << "\n"
 <br>
 
 **Concept:** _One Definition Rule (ODR)_
->Define a function only once. No other place (within the same file or any other files within the program) may have an implementation of that function.
+> Define a function only once. No other place (within the same file or any other files within the program) may have an implementation of that function.
 
 ---
 <br>
@@ -197,9 +197,165 @@ _**16-03-2021**_
 
 <br>
 
+**Q.** Are that compiler options that can detect Runtime Errors?
+> -fanalyzer may
+
+<br>
+
+**Q.**  does nullptr have a special type?
+> Its type is std::nullptr_t.
+It is a 'special' type defined just for nullptr.
+You can pass it to any function expecting a pointer, say for example: std::string*
+Thus, It can be implicitly converted to any pointer type.
+
+<br>
+
+_**Note:** You can swap 2 ints using XOR. It's a party trick :p_
+
+<br>
+
+_**Note:** Never return a reference to a local variable!!!_
+
+<br>
+
+**Concept:** _Name Mangling_
+> It combines function arguments with the name to allow for writing multiple functions with same name & different arguments, and make the code more generalized.
+This is not implemented in C, it is only implemented in C++.
+
+<br>
+
+**Q.** Does std::iterator.end() iterator method actually points to 1 past the last element ?
+> Yes, you shall not dereference end()
+
+<br>
+
+**Tip:** Avoid using default arguments in functions. If you do use, then stick to only 1 default argument at max!!
+
+<br>
+
+**Concept:** _`inline` keyword_
+> Sometimes, for small functions, you don't want call overhead while calling that function. So you use the `inline` keyword, and the compiler copies the function body to wherver it is called.
+But if you use `inline` for big functions, it will slow down your code and there is no benifit to this.
+
+> Another thing to note is that it is a **suggestion** to the compiler. You say, I want this thing to be _inlined_, but most of the modern compilers are smart enough to recognise which functions can be _inlined_ and which ones cannot be. So, in the end it is upto the compiler to implement. For ex. the _clang_ compiler completely ignores the `inline` keyword!.
+
+_Ex._
+```C++
+inline int add_ints(const int& a, const int& b){
+    return a + b;
+}
+```
+
+_**Note:** `inline` keyword doesn't work with "Recursive Functions"_
+
+<br>
+
+_**Note:** Take a Look at the following videos:_
+- The Strange details of std::string at Facebook by Nicholas Ormrod at cppcon 2016 
+- "GoingNative 2013 C++ Seasoning"
+
+<br>
+
+**Tip:** Use underscore to make data members distinct from arguments in the constructor, because they help in preventing name collisions, while still retaining readability of your code.
+
+_Ex._
+
+```C++
+class Person{
+private:
+    // Data Members
+    // Both of the below naming styles are recommended
+    // Use one of these
+    std::string firstname_;
+    std::string m_firstname;
+};
+```
+
+<br>
 
 
+**Tip:** Return `const` by reference for getters in classes to be fast and efficient, since returning without reference causes unnecessary copying of values.
 
+```C++
+class Person{
+private:
+    // Data Members
+    std::string firstname_;
+public:
+    Person(/* some params */) = {/* some constructor */}
+    
+    // Getter
+    const std::string& firstname() const { return firstname_; }
+};
+```
 
+_**Note:** The `const` after the function signature (name) promises (tells) us that this member function will not modify any data-member of the class._
 
+_**Note:** Basically, the first `const` (for the reference) prevents  of this data-member through this alias outside of the class. The second `const` (after the function signature) is there to prevent from this member function from mutating the data-members of the object._
 
+_**Note:** Also, `const std::string& foo();` is the same as `std::string const& foo();`, thus position of this const doesn't matter, because this const belongs to the reference anyways._
+
+<br>
+
+**Q.** Can we use set and get as prefixes for these getters and setters to avoid confusion (and generally as a convention)?
+> _Yes_ and _No_. 
+_Yes_ because no one is stopping you from doing it. 
+_No_ because it is more consise to write the thing that the setters and getters set and get respectively. You can overload them.
+
+_Ex._
+```C++
+// Implement the Person class with both ways
+class Person{
+private:
+    std::string name_;
+    int age_;
+public:
+    // -------------------------------------------------------
+    // GOOD GETTERS and SETTERS (most followed convention)
+    // getters:
+    const std::string& name() const { return name_; }
+    int age() const { return age_; }
+
+    // setters:
+    void name(const std::string& name){ name_ = name; }
+    void age(const int age){ age_ = age; }
+
+    // -------------------------------------------------------
+    // BAD GETTERS and SETTERS (again, just a suggestion)
+    // getters:
+    const std::string& getName() const { return name_; }
+    int getAge() const { return age_; }
+    
+    // setters:
+    void setName(const std::string& name){ name_ = name; }
+    void setAge(const int age){ age_ = age; }
+};
+```
+
+<br>
+
+**Q.** Is it a general tip to initialize all the data-members?
+> Yes, it is a general tip to have all members in a defined, initialized state after construction.
+But note, that some types have a default constructor, like string. You would not need to initialize it, if it is fine that it is an empty string.
+But if you leave a variable, say age (of type `int`) uninitialized, it could be anything. 
+So for such data-types, it is a good practice to initialize them.
+
+_Ex._
+```C++
+class Person{
+private:
+    // This is an example of In-class initializer
+    std::string name_;              // String can be empty by default, so no need to initialize it
+    int age_ = 0;                   // Integers don't have a default value, so it is a good practice
+                                    // to initialize them to something to prevent us from using
+                                    // garbage values
+    Person* spouse = nullptr;       // Here also, the pointer is set to nullptr to prevent us from
+                                    // accessing an un-initialized pointer!
+public:
+    Person() = default;             // Default constructor
+    Person(/* Args */){/* Stuff */}
+```
+
+<br>
+
+---
