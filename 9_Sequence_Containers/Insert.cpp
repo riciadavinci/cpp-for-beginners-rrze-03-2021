@@ -22,17 +22,44 @@
 #include <list>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 
 int main()
 {
    std::list<std::string> lwords;
+   std::string s1, s2;
 
-   // TODO: Insert strings into the list
+   while(std::cin >> s1 >> s2){
+      // TODO: Insert strings into the list
+      const auto pos = std::find(lwords.begin(), lwords.end(), s1);
+      if(pos == lwords.end()){
+         lwords.push_back(s2);
+      }
+      else {
+         // If you didn't use const, you could also do
+         // (++pos) instead of std::next(pos) to get
+         // the next iterator
+         lwords.insert(std::next(pos), s2);
+      }
+   }
+   for(const auto& element: lwords){
+      std::cout << "\"" << element << "\" ";
+   }
+   std::cout << "\n";
 
    // TODO: Copy the list into a vector
-
+   std::vector<std::string> vwords(lwords.size());
+   std::copy(lwords.begin(),lwords.end(), vwords.begin());
+   
    // TODO: Compare the list and the vector
+   if(std::equal(lwords.begin(), lwords.end(), vwords.begin(), vwords.end())){
+      std::cout << "Success: Vector and list are equal!\n";
+   }
+   else {
+      std::cout << "Failure: Vector and list are NOT equal!\n";
+   }
+   
 
    return EXIT_SUCCESS;
 }
