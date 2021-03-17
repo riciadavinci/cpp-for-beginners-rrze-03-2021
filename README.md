@@ -293,7 +293,7 @@ _**Note:** The `const` after the function signature (name) promises (tells) us t
 
 _**Note:** Basically, the first `const` (for the reference) prevents  of this data-member through this alias outside of the class. The second `const` (after the function signature) is there to prevent from this member function from mutating the data-members of the object._
 
-_**Note:** Also, `const std::string& foo();` is the same as `std::string const& foo();`, thus position of this const doesn't matter, because this const belongs to the reference anyways._
+_**Note:** Also, `const std::string& foo();` is the same as `std::string const& foo();`, thus position of this const doesn't matter, because this `const` belongs to the reference. It is read as 'Reference to `const`'._
 
 <br>
 
@@ -359,3 +359,218 @@ public:
 <br>
 
 ---
+
+### Day 3
+_**17-03-2021**_
+
+<br>
+
+_**Note:** The `v.end()` iterator is returned, if the `std::sort(v.begin(), v.end(),"some_value")` algorithm does not find a match._
+
+<br>
+
+_**Concept:** `explicit` kewrord_
+> This keyword is placed in front of a constructor, which stops implicit type conversion in your code.
+
+_Ex._
+```C++
+class Person{
+private:
+    std::string name_;
+
+public:
+    explicit Person(std::string name)
+        : name_ ( name )
+    {}
+
+    const std::string& name() { return name_; }
+};
+
+void print(const Person& p){
+    std::cout << p.name() << "\n";
+}
+
+
+int main(){
+    Person p1("John Doe");
+    std::string s1("Max Mustermann");
+
+    // This is intended behaviour for print function
+    print(p1);
+
+    // This is not intended behaviour for print function
+    // Here, it will create a temporary Person object from
+    // the string, i.e., an implicit keyword
+    // But the `explicit` keyword in front of the constructor
+    // prevents this behaviour.
+    // Thus `explicit` keyword is very good. 
+    // Use it often similar, to `const` keyword
+
+    print(s1);      // if `explicit` is not used, this will cause compilation error
+                    // else it will work just fine.
+    
+    return 0;
+}
+```
+
+<br>
+
+_**Concept:** `static` keyword_
+> Within **classes**, data-members with `static` type modifier is shared by each instance of the class. It is declared inside the class, but needs to be initialized outside of the class.
+
+> Within **classes**, member functions modified with this keyword can be called without creating an instance of the class, only by using the scope operator.
+A use of this is to use this to modify the `static` variables, since only `static` modified member functions can mutate `static` data members.
+Static data members of a class need to defined only once in a source file
+
+_Ex._
+```C++
+class Person{
+private:
+    std::string name;
+
+    // static data member, declared inside the class
+    static std::string defaultName_;
+
+public:
+    Person(std::string name)
+        : name_ ( name )
+    {}
+
+    void name(const std::string& name) { name = name_; }
+
+    // static member function
+    static setDefaultName(const std::string& name) { name = defaultName_; }
+};
+
+// static data member initialized outside of the class definition
+// permitted to be initialized only once inside a source file 
+Person::defaultName_ { "Max Mustermann" };
+
+
+int main(){
+    // Only static member functions can mutate static variables!
+    Person::setDefaultName("John Doe");
+}
+```
+
+<br>
+
+_**Concept:** `mutable` keyword_
+> Used to mutate data-members inside functions with `const` keyword. A use case is in situation where you have getters (which have `const` modifier to prevent the class from modifying the underlying object).
+> _Ex._ Consider a `class` `Polygon` which is made up of `Point` (having its separate `class`). `Polygon` also has a variable `area_`, which stores/caches the area of this polygon. Whenever we add or remove a point, the previous area will naturally become incorrect. So whenever we add/remove a point, we will set the area to `-1.0` (invalidation condition as an example). Then, when we call the getter `getArea()` next time, it will first check if this cached area (`area_`) is valid or not. If not, it will call another function `calculateArea()` internally.
+The thing is, if we set `const` modifier (after class signature) for `getArea`,
+the compiler will call 
+
+_Ex._
+```C++
+class Point{
+private:
+    int x_, y_;
+
+public:
+    Point(int x, int y) : x_ (x), y_ (y){}
+};
+
+class Polygon{
+private:
+    std::vector<Points> points;
+    mutable double area_;
+
+public:
+    // assume constructor
+
+    void addPoint(const& Point p){ points.push_back(p); }
+    
+    
+    // Note, here we use const to prevent `invalidateArea` & `calculateArea`
+    // from modifying any other data member of this class.
+    void invalidateArea() const{ area_ = -1.0; }
+    void calculateArea() const{ /* do stuff here and set new area_*/ }
+
+    // getters
+
+    // If we don't use the `mutable` keyword in front of area_,
+    // then this `const` qualifier here (after function signature)
+    // will not let us modify the `area_` variable in any way! 
+    double getArea() const{
+        if(area_ < 0){
+            calculateArea();
+        }
+        return area_;
+    }
+
+};
+
+```
+
+> The above optimisation (of caching a hidden variable `area_`) is only possible due to the use of the `mutable` keyword. Otherwise we would need to calculate the area every time, which may be highly inefficient. It is also inefficient to re-calculate the area whenever a new point is added. Hence, we go with this approach here.
+Use the `mutable` keyword sparingly though, as it can also do harm to the program.
+Use it responsibly and only for inner implementation, don't expose it to users of your code.
+
+<br>
+
+_**Concept:** Deque - Double-ended Queue_
+> A type of combination of combination of `List` and `Array`. Very useful data structure.
+
+
+<br>
+
+**Q.** What if we created 1000-long `vector` and deleted 999 elements, will the capacity stay 1000?
+> Yes, the capacity of the `vector` will stay 1000.
+
+<br>
+
+_**Note: Resizing of Vectors**_
+> There is a resize operation that changes the capacity
+resize can also upsize a vector, to avoid frequent reallocation: `std::vector::reserve()`.
+`std::vector::resize()` actually inserts new elements into the vector.
+And there is `std::vector::shrink_to_fit()` to trim excess capacity
+
+<br>
+
+_**Concept:** Every sequence container has a special constructor that takes two iterators and copies all the elements in that range._
+
+_Ex._
+```C++
+std::list<int> l_ints = {1, 2, 3, 4, 5};
+std::vector<int> v_ints(l_ints.begin(), l_ints.end());
+
+// alternate way
+
+std::vector<int> v_ints2(l_ints.size());
+std::copy(l_ints.begin(),l_ints.end(), v_ints2.begin());
+```
+
+<br>
+
+_**Note:** In ordered `std::set` and ordered `std::map`, the values are sorted. Only difference between them is: `std::set` stores only keys, while `std::map` stores pairs of keys and values._
+
+<br>
+
+_**Concept:** Dangling Pointer_
+> When you use the `delete` command on a pointer pointing to some heap allocated memory, the data at that location is deleted and is inaccessible through the current program, but we can still use this pointer. This is known as the **Dangling Pointer**. To avoid this, always reassign the pointer after `delete` to `nullptr`.
+
+<br>
+
+_**Tip:** In some cases, you may try to free the same piece of heap allocated memory more than once (by calling `delete` twice on the same pointer). To avoid this, we make use of **smart pointers** from "STL"._
+
+<br>
+
+---
+
+### Day 4
+_**18-03-2021**_
+
+
+
+
+
+
+---
+
+### Day 5
+_**19-03-2021**_
+
+
+
+
