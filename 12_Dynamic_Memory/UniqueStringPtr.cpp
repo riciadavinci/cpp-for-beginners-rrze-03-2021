@@ -23,32 +23,34 @@ using namespace std::string_literals;
 class UniqueStringPtr
 {
  public:
-   UniqueStringPtr();
-   UniqueStringPtr( std::string* ptr );
-   UniqueStringPtr( UniqueStringPtr const& );
+    UniqueStringPtr() = default;     // default constructor
 
-   ~UniqueStringPtr();
+    // Member initialization list constructor
+    UniqueStringPtr( std::string* ptr ) : ptr_ ( ptr ) {}
 
-   UniqueStringPtr& operator=( UniqueStringPtr const& );
+    UniqueStringPtr( UniqueStringPtr const& );
 
-   std::string& operator* () const;
-   std::string* operator->() const;
+    ~UniqueStringPtr() { delete ptr_; }
+
+    UniqueStringPtr& operator=( UniqueStringPtr const& );
+
+    std::string& operator* () const;
+    std::string* operator->() const;
 
  private:
-   std::string* ptr_;
+   std::string* ptr_ { nullptr };
 };
 
 
 // TODO: Implement all member functions of the 'UniqueStringPtr' class
 
 
+
 int main()
 {
-   /*
    UniqueStringPtr usptr( new std::string( "Bjarne"s ) );
 
    std::cout << "\n *usptr = \"" << *usptr << "\"\n\n";
-   */
 
    return EXIT_SUCCESS;
 }

@@ -27,16 +27,17 @@ struct S
 };
 
 
-S* createObjectOnHeap()
+std::unique_ptr<S> createObjectOnHeap()
 {
-   S* s = new S{};
-   return s;
+   return std::unique_ptr<S>(new S{});
 }
 
 
 int main()
 {
    // TODO: Use a 'std::unique_ptr' to handle a dynamically allocated object automatically
+   // This "unique_ptr" is a very shallow wrapper around the "raw pointer" S*
+   std::unique_ptr<S> s(createObjectOnHeap());
 
    return EXIT_SUCCESS;
 }

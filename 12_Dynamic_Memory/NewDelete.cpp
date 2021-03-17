@@ -44,5 +44,13 @@ int main()
 {
    // TODO: Experiment with the 'createObjectOnStack()' and 'createObjectOnHeap()' functions.
 
+   std::cout << "Start of main() function...\n";
+
+   S* s = createObjectOnHeap();
+
+   delete s;
+
+   std::cout << "End of main() function...\n";
+
    return EXIT_SUCCESS;
 }
