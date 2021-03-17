@@ -36,6 +36,15 @@ public:
    // The implementation details are in the Person.cpp source file
    Person(const std::string& firstname, const std::string& lastname, int age);
 
+   // destructor
+   ~Person() = default;
+
+   // copy constructor
+   Person( const Person& ) = default;
+
+   // assignment operator overload
+   Person& operator=( const Person& ) = default;
+
    // Getter Functions
    // Help us get data members which may be private
    const std::string& firstname() const {return firstname_;}
@@ -50,11 +59,16 @@ public:
    void firstname(const std::string& name); // Defined within the Person.cpp file
    void lastname(const std::string& name){ lastname_ = name; }
 
+   static void defaultFirstname(const std::string& firstname) { defaultFirstname_ = firstname; }
+   static void defaultLastname (const std::string& lastname ) { defaultFirstname_ = lastname; }
 
 private:
    std::string firstname_;
    std::string lastname_;
    int age_;
+
+   static std::string defaultFirstname_;
+   static std::string defaultLastname_;
 
 /*
 // In-class initializer:
@@ -78,7 +92,19 @@ public:
 };
 
 
+std::ostream& operator<<(std::ostream& os, const Person& p){
+   os << p.firstname() << " " << p.lastname() << ", age: " << p.age();
+   return os;
+}
+
+
+
+
 //--Person.cpp-------------------------------------------------------------------------------------
+
+// Static data members of a class need to defined only once in a source file
+std::string Person::defaultFirstname_ {"John"};
+std::string Person::defaultLastname_ {"Doe"};
 
 // This is the definition of the class constructor in say a Person.cpp file
 // The "Person::" tells the compiler that this function belongs to the Person class 
@@ -98,6 +124,13 @@ int main()
 
    const std::string firstname = bjarne.firstname();
 
+   std::cout << bjarne << "\n";
+
+   // This will call the copy constructor
+   Person cloneOfBjarne(bjarne);
+
+   Person clone2OfBjarne;
+   clone2OfBjarne = bjarne;   // This will call the copy assignment operator
 
    return EXIT_SUCCESS;
 }

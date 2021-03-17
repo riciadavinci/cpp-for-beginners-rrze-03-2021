@@ -20,6 +20,7 @@
 #include <iostream>
 #include <string>
 
+// Just for convenience here!
 using std::string;
 
 
@@ -28,6 +29,39 @@ using std::string;
 //=================================================================================================
 
 // Step 1: Extract the 'isbn_' string into the 'ISBN' class.
+
+class ISBN{
+private:
+   string isbn_;
+
+public:
+   // We don't need a default constructor here,
+   // because we don't 
+   // ISBN() = default;    // default constructor
+
+   // Member initializer list constructor
+   ISBN(const string& isbn)
+      : isbn_{ isbn }
+   {}
+
+   // getters
+   // const std::string& isbn() const { return isbn_; }     // my implementation
+
+   // Klaus' implementation
+   string asString() const { return isbn_; }       // We return here as a string
+                                                   // since we want to store the
+                                                   // the ISBN differently (and 
+                                                   // not as a string)
+   
+   // setters
+   void isbn(const string& isbn) { isbn_ = isbn; }
+
+};
+
+std::ostream& operator<< (std::ostream& out, const ISBN& i){
+   out << i.asString();
+   return out;
+}
 
 
 //=================================================================================================
@@ -67,12 +101,70 @@ std::ostream& operator<<( std::ostream& os, Currency currency )
 
 // Step 2: Extract the 'firstname_' and 'lastname_' strings into the 'Author' class.
 
+class Author{
+private:
+   string firstname_;
+   string lastname_;
+
+public:
+   // Again, we don't have a Default author name,
+   // so no need to define a default constructor
+   // Author() = default;     // default constructor
+
+   // Member initialization list constructor
+   Author(const string& firstname, const string& lastname)
+      : firstname_ { firstname }
+      , lastname_  { lastname  }
+   {}
+
+   // getters
+   const string& firstname() const { return firstname_; }
+   const string& lastname () const { return lastname_; }
+   // const string  name() const { return firstname_ + " " + lastname_; } 
+
+   // setters
+   void firstname(string const& firstname) { firstname_ = firstname; }
+   void lastname (string const& lastname ) { lastname_ = lastname; }
+
+};
+
+std::ostream& operator<< (std::ostream& out, const Author& a){
+   out << a.firstname()  << " " << a.lastname();
+   return out; 
+}
+
 
 //=================================================================================================
 // class Price
 //=================================================================================================
 
 // Step 3: Refactor the 'Price' type alias into the 'Price' class.
+
+class Price{
+private:
+   double value_;// = 10.0;
+   Currency currency_;// = Currency::Euro;
+
+public:
+   // default constructor
+   Price() = default;
+
+   // Member initializer list constructor
+   Price(const double price, const Currency& currency = Currency::Euro)
+      : value_    {price}
+      , currency_ { currency }
+   {}
+
+   double price() const { return value_; }
+   Currency currency() const { return currency_; } 
+
+};
+
+std::ostream& operator<< (std::ostream& out, const Price& price){
+   out << price.price() << " " << price.currency();
+   return out;
+
+}
 
 
 //=================================================================================================
@@ -82,21 +174,16 @@ std::ostream& operator<<( std::ostream& os, Currency currency )
 class Book
 {
  public:
-   using Price = std::pair<double,Currency>;
-
-   explicit Book( const string& title, const string& firstname
-                , const string& lastname, const string& isbn )
+   explicit Book( const string& title, const Author& author, const ISBN& isbn )
       : title_    ( title )
-      , firstname_( firstname )
-      , lastname_ ( lastname )
+      , author_   ( author )
       , isbn_     ( isbn )
       , price_    ( defaultPrice_ )
    {}
 
    const string& title() const { return title_; }
-   const string& firstname() const { return firstname_; }
-   const string& lastname() const { return lastname_; }
-   const string& isbn() const { return isbn_; }
+   const Author& author() const { return author_; }
+   const ISBN&   isbn() const { return isbn_; }
    Price         price() const { return price_; }
 
    void setPrice( Price price ) { price_ = price; }
@@ -107,23 +194,22 @@ class Book
 
  private:
    string title_;
-   string firstname_;
-   string lastname_;
-   string isbn_;
+   Author author_;
+   ISBN isbn_;
    Price  price_;
 
    static Price defaultPrice_;
 };
 
-Book::Price Book::defaultPrice_( 10.0, Currency::Euro );
+Price Book::defaultPrice_( 10.0, Currency::Euro );
 
 std::ostream& operator<<( std::ostream& os, const Book& book )
 {
    os << "Title: \"" << book.title()
-      << "\", Author: \"" << book.firstname() << " " << book.lastname()
+      << "\", Author: \"" << book.author()
       << "\", ISBN: " << book.isbn()
       << std::setprecision( 2 ) << std::fixed
-      << ", Price: " << book.price().first << " " << book.price().second;
+      << ", Price: " << book.price();
 
    return os;
 }
@@ -135,22 +221,22 @@ std::ostream& operator<<( std::ostream& os, const Book& book )
 
 int main()
 {
-   Book book1( "Vom Winde verdreht", "Homer", "Simpson", "1X23456" );
+   Book book1( "Vom Winde verdreht", Author("Homer", "Simpson"), ISBN("1X23456") );
    book1.setPrice( 12.5 );
 
-   Book book2( "Vom Winde verdreht 2", "Homer", "Simpson", "1X23457" );
+   Book book2( "Vom Winde verdreht 2", Author("Homer", "Simpson"), ISBN("1X23457") );
    book2.setPrice( 13.5 );
 
-   Book book3( "Gone with the Lint", "O.J.", "Simpson", "2Y83746" );
+   Book book3( "Gone with the Lint", Author("O.J.", "Simpson"), ISBN("2Y83746") );
    book3.setPrice( 9.99, Currency::Dollar );
 
-   Book book4( "Hairy Potter", "J.K.", "Rowling", "1Z95857" );
+   Book book4( "Hairy Potter", Author("J.K.", "Rowling"), ISBN("1Z95857") );
    book4.setPrice( 19.99, Currency::Dollar );
 
-   Book book5( "Lord of the Things", "J.R.R.", "Tolkien", "8Y34567" );
+   Book book5( "Lord of the Things", Author("J.R.R.", "Tolkien"), ISBN("8Y34567") );
    book5.setPrice( 25.0, Currency::Euro );
 
-   Book book6( "Ghost in the Dwell", "Masamune", "Shirow", "7Z35790" );
+   Book book6( "Ghost in the Dwell", Author("Masamune", "Shirow"), ISBN("7Z35790") );
    book6.setPrice( 45.99, Currency::Yen );
 
    std::cout << "\n"
