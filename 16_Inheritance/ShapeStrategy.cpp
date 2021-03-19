@@ -29,11 +29,20 @@ protected:
 
 public:
 
-   void translate(double dx, double dy);
+   void translate(double dx, double dy){
+      x_ += dx;
+      y_ += dy;
+   }
 
-   virtual void rotate(double angle_in_radians);
-   
+   virtual void rotate(double angle_in_radians){
+      angle_ += angle_in_radians;
+   }
+
    virtual double area() const = 0;
+
+   // pure virtual function "draw()" to be implemented using Strategy.cpp example 
+   // (design pattern)
+   virtual void draw() const = 0;
 
    virtual ~Shape() = default;
 
@@ -42,23 +51,35 @@ public:
    double angle() const { return angle_; }
 };
 
-void Shape::translate(double dx, double dy){
-   x_ += dx;
-   y_ += dy;
-}
+class Circle;
 
-void Shape::rotate(double angle_in_radians){
-   angle_ += angle_in_radians;
-}
+class DrawCircle{
+public:
+   virtual ~DrawCircle() = default;
+   virtual void draw(const Circle& circle) const = 0;
+};
+
 
 class Circle
    : public Shape {
 private:
    double radius_ {};
+   std::unique_ptr<DrawCircle> draw_ {};
+
 public:
    explicit Circle(double radius) : radius_ { radius } {}
    double radius() const { return radius_; }
    double area() const override{ return 3.14 * radius_ * radius_; }
+
+   void draw() const override {
+      // TODO: implement by means of Strategy object
+      draw_->draw(*this);
+   }
+
+   // TODO: Implement a setter for the draw strategy!
+   void setDrawStrategy(DrawCircle* stragtegy){
+      draw_.reset(stragtegy);
+   }
 
    void translate(double dx, double dy){
       x_ += 2.0*dx;
@@ -71,33 +92,22 @@ public:
 };
 
 
-class Square
-   : public Shape {
-private:
-   double side_ {};
+class TestDrawCircle
+   : public DrawCircle
+{
 public:
-   double side() const { return side_; }
-   explicit Square(double side) : side_ { side } {}
-   double area() const override{ return side_ * side_; }
+   void draw(const Circle& circle) const override {
+      std::cout << "circle: radius = " << circle.radius() << "\n"; 
+   }
 };
+
 
 int main()
 {
-   Circle circle(3.14);
-   Square square(2.5);
-   Shape* shape = &circle;
+   std::unique_ptr<Circle> circle(new Circle(1.0));
+   circle->setDrawStrategy(new TestDrawCircle());
 
-   shape->translate(2.0, 4.5);
-   shape->rotate(0.1);     // virtual dispatch
-   std::cout << "circle: xpos = " << circle.xpos() 
-             << ", ypos = " << circle.ypos() 
-             << ", angle = " << circle.angle() 
-             << ", area = " << shape->area()
-             << "\n";
-   std::cout << "circle: radius = " << circle.radius() << "\n";
-   
-   square.translate(0.1, -0.2);
-   std::cout << "square: xpos = " << square.xpos() << ", ypos = " << square.ypos() << "\n";
+   circle->draw();
 
    return EXIT_SUCCESS;
 }
