@@ -628,18 +628,31 @@ _**Concept:** To stop anymore overriding/derivation of virtual functions/classes
 
 _Ex._
 ```C++
-struct Animal {
-std::string name_;
-virtual void make_noise() = 0;
+class Animal {
+private:
+    std::string name_;
+
+public:
+    Animal(const std::string& name): name_ { name } {}
+    virtual ~Animal() = default;        // virtual destructor
+    virtual void make_noise() = 0;      // pure virtual function
 };
 
 struct Dog : public Animal {
+public:
+    Dog(const std::string& name) : Animal { name } {}
 
+    // "final" qualifier here means that this function cannot be overridden further
+    void make_noise() const override final { std::cout << "Wof Wof!\n"; }
 };
 
+// The "final" keyword here means that this class cannot be derived from further
+struct ShibaInu final : public Dog {
+public:
+    ShibaInu(const std::string& name) : Dog { name } {}
+}
 
 ```
-
 
 <br>
 
@@ -647,10 +660,6 @@ _**Concept:** `__vptr__` (virtual table pointer) and Virtual Dispatch_
 > The compiler introduces/defines a "virtual table pointer" in the base class for all overrided functions within the derived classes of this class. Thus, the `__vptr__` resolves everything at run-time and calls the appropriate functions.
 
 > Only disadvantage of this function overriding is that keeping tab of this virtual table pointer and the table itself has a good amount of overhead and can slow down your program.
-
-<br>
-
-_**Tipp:** Never make these access specifiers dynamical_???
 
 <br>
 
