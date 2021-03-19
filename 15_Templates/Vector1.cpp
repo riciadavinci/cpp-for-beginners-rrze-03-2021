@@ -8,7 +8,7 @@
 * This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 * context of the C++ training or with explicit agreement by Klaus Iglberger.
 *
-* Task: Rework the 'StringVector' class to a class template named 'Vector'.
+* Task: Rework the 'Vector' class to a class template named 'Vector'.
 *
 **************************************************************************************************/
 
@@ -22,23 +22,22 @@ using std::size_t;
 using namespace std::string_literals;
 
 
-class StringVector
+template<typename T>
+class Vector
 {
  public:
-   using iterator       = std::string*;
-   using const_iterator = const std::string*;
+   using iterator       = T*;
+   using const_iterator = const T*;
 
-   StringVector() = default;
-   StringVector( const StringVector& sv );
-   StringVector( StringVector&& sv );
+   Vector() = default;
+   Vector( const Vector& sv );
 
-   StringVector& operator=( const StringVector& sv );
-   StringVector& operator=( StringVector&& sv );
+   Vector& operator=( const Vector& sv );
 
-   ~StringVector();
+   ~Vector();
 
-   void   push_back( const std::string& s );
-   void   push_back( std::string&& s );
+   void   push_back( const T& s );
+   void   push_back( T&& s );
    size_t size() const;
    size_t capacity() const;
 
@@ -47,71 +46,49 @@ class StringVector
    const_iterator begin() const;
    const_iterator end()   const;
 
-   void swap( StringVector& sv );
+   void swap( Vector& sv );
 
  private:
    void reallocate();
    void free();
 
-   std::string* begin_{ nullptr };
-   std::string* end_  { nullptr };
-   std::string* final_{ nullptr };
+   T* begin_{ nullptr };
+   T* end_  { nullptr };
+   T* final_{ nullptr };
 
-   static std::allocator<std::string> alloc;
+   static std::allocator<T> alloc;
 };
 
-std::allocator<std::string> StringVector::alloc;
+template<typename T>
+std::allocator<T> Vector<T>::alloc;
 
 
-StringVector::StringVector( const StringVector& sv )
+template<typename T>
+Vector<T>::Vector( const Vector& sv )
    : begin_( alloc.allocate( sv.size() ) )
    , end_  ( std::uninitialized_copy( sv.begin(), sv.end(), begin_ ) )
    , final_( end_ )
 {}
 
 
-StringVector::StringVector( StringVector&& sv )
-   : begin_( sv.begin_ )
-   , end_  ( sv.end_   )
-   , final_( sv.final_ )
+template<typename T>
+Vector<T>& Vector<T>::operator=( const Vector& sv )
 {
-   sv.begin_ = nullptr;
-   sv.end_   = nullptr;
-   sv.final_ = nullptr;
-}
-
-
-StringVector& StringVector::operator=( const StringVector& sv )
-{
-   StringVector tmp( sv );
+   Vector tmp( sv );
    swap( tmp );
    return *this;
 }
 
 
-StringVector& StringVector::operator=( StringVector&& sv )
-{
-   free();
-
-   begin_ = sv.begin_;
-   end_   = sv.end_;
-   final_ = sv.final_;
-
-   sv.begin_ = nullptr;
-   sv.end_   = nullptr;
-   sv.final_ = nullptr;
-
-   return *this;
-}
-
-
-StringVector::~StringVector()
+template<typename T>
+Vector<T>::~Vector()
 {
    free();
 }
 
 
-void StringVector::push_back( const std::string& s )
+template<typename T>
+void Vector<T>::push_back( const T& s )
 {
    if( end_ == final_ ) {
       reallocate();
@@ -122,7 +99,8 @@ void StringVector::push_back( const std::string& s )
 }
 
 
-void StringVector::push_back( std::string&& s )
+template<typename T>
+void Vector<T>::push_back( T&& s )
 {
    if( end_ == final_ ) {
       reallocate();
@@ -133,40 +111,48 @@ void StringVector::push_back( std::string&& s )
 }
 
 
-size_t StringVector::size() const
+template<typename T>
+size_t Vector<T>::size() const
 {
    return end_ - begin_;
 }
 
 
-size_t StringVector::capacity() const
+template<typename T>
+size_t Vector<T>::capacity() const
 {
    return final_ - begin_;
 }
 
 
-StringVector::iterator StringVector::begin()
+template<typename T>
+typename Vector<T>::iterator Vector<T>::begin()
 {
    return begin_;
 }
 
-StringVector::iterator StringVector::end()
-{
-   return end_;
-}
-
-StringVector::const_iterator StringVector::begin() const
-{
-   return begin_;
-}
-
-StringVector::const_iterator StringVector::end() const
+template<typename T>
+typename Vector<T>::iterator Vector<T>::end()
 {
    return end_;
 }
 
 
-void StringVector::swap( StringVector& sv )
+template<typename T>
+typename Vector<T>::const_iterator Vector<T>::begin() const
+{
+   return begin_;
+}
+
+template<typename T>
+typename Vector<T>::const_iterator Vector<T>::end() const
+{
+   return end_;
+}
+
+
+template<typename T>
+void Vector<T>::swap( Vector<T>& sv )
 {
    using std::swap;
 
@@ -176,7 +162,8 @@ void StringVector::swap( StringVector& sv )
 }
 
 
-void StringVector::reallocate()
+template<typename T>
+void Vector<T>::reallocate()
 {
    const size_t n = ( size() ? 2*size() : 1UL );
 
@@ -191,7 +178,8 @@ void StringVector::reallocate()
 }
 
 
-void StringVector::free()
+template<typename T>
+void Vector<T>::free()
 {
    for( auto it=begin_; it!=end_; ++it ) {
       alloc.destroy( it );
@@ -201,11 +189,12 @@ void StringVector::free()
 }
 
 
-std::ostream& operator<<( std::ostream& os, const StringVector& sv )
+template<typename T>
+std::ostream& operator<<( std::ostream& os, const Vector<T>& sv )
 {
    os << "(";
    for( const auto& s : sv ) {
-      os << " \"" << s << "\"";
+      os << s << " ";
    }
    return os << " )";
 }

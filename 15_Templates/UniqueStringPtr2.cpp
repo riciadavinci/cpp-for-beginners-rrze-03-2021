@@ -1,6 +1,6 @@
 /**************************************************************************************************
 *
-* \file UniqueStringPtr.cpp
+* \file UniquePtr.cpp
 * \brief C++ Training - Class Template Programming Task
 *
 * Copyright (C) 2015-2021 Klaus Iglberger - All Rights Reserved
@@ -8,8 +8,8 @@
 * This file is part of the C++ training by Klaus Iglberger. The file may only be used in the
 * context of the C++ training or with explicit agreement by Klaus Iglberger.
 *
-* Task: Implement the 'UniqueStringPtr' class to manage a dynamically allocated 'std::string'.
-*       The 'UniqueStringPtr' should implement unique ownership of a std::string.
+* Task: Implement the 'UniquePtr' class to manage a dynamically allocated 'std::string'.
+*       The 'UniquePtr' should implement unique ownership of a std::string.
 *
 **************************************************************************************************/
 
@@ -19,44 +19,48 @@
 
 using namespace std::string_literals;
 
-
-class UniqueStringPtr
+template<typename T>
+class UniquePtr
 {
  public:
-            UniqueStringPtr() = default;
-   explicit UniqueStringPtr( std::string* ptr );
-            UniqueStringPtr( UniqueStringPtr const& ) = delete;
+            UniquePtr() = default;
+   explicit UniquePtr( T* ptr );
+            UniquePtr( UniquePtr const& ) = delete;
 
-   ~UniqueStringPtr();
+   ~UniquePtr();
 
-   UniqueStringPtr& operator=( UniqueStringPtr const& ) = delete;
+   UniquePtr& operator=( UniquePtr const& ) = delete;
 
-   std::string& operator* () const;
-   std::string* operator->() const;
+   T& operator* () const;
+   T* operator->() const;
 
  private:
-   std::string* ptr_{ nullptr };
+   T* ptr_{ nullptr };
 };
 
 
-UniqueStringPtr::UniqueStringPtr( std::string* ptr )
+template<typename T>
+UniquePtr<T>::UniquePtr( T* ptr )
    : ptr_( ptr )
 {}
 
 
-UniqueStringPtr::~UniqueStringPtr()
+template<typename T>
+UniquePtr<T>::~UniquePtr()
 {
    delete ptr_;
 }
 
 
-std::string& UniqueStringPtr::operator*() const
+template<typename T>
+T& UniquePtr<T>::operator*() const
 {
    return *ptr_;
 }
 
 
-std::string* UniqueStringPtr::operator->() const
+template<typename T>
+T* UniquePtr<T>::operator->() const
 {
    return ptr_;
 }
@@ -64,7 +68,7 @@ std::string* UniqueStringPtr::operator->() const
 
 int main()
 {
-   UniqueStringPtr usptr( new std::string( "Bjarne"s ) );
+   UniquePtr<std::string> usptr( new std::string( "Bjarne"s ) );
 
    std::cout << "\n *usptr = \"" << *usptr << "\"\n\n";
 
