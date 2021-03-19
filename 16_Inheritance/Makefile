@@ -45,7 +45,7 @@ Shape: Shape.cpp
 	$(CXX) $(CXXFLAGS) -o Shape Shape.cpp
 
 ShapeStrategy: ShapeStrategy.cpp
-	$(CXX) $(CXXFLAGS) -o ShapeStrategy.cpp
+	$(CXX) $(CXXFLAGS) -o ShapeStrategy ShapeStrategy.cpp
 
 Strategy: Strategy.cpp
 	$(CXX) $(CXXFLAGS) -o Strategy Strategy.cpp
