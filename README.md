@@ -561,7 +561,21 @@ _**Tip:** In some cases, you may try to free the same piece of heap allocated me
 ### Day 4
 _**18-03-2021**_
 
+<br>
 
+_**Comment by Klaus:**_ 
+> About performance: The stack can be a little faster indeed. But since the size is limited, you can only draw advantages for small data. Most of the data (including for instance vector and matrices) will be on the heap). unordered sets and maps may a little faster for lookup, but may require more memory. Also the data is never sorted.
+
+<br>
+
+_**Tip:** Remember, for `std::map` and `std::set`, `operator[]` inserts new element if that key does not exist. So avoid using it to traverse those particular associative containers and stick to iterators._
+
+<br>
+
+_**Concept:** Lazy Instantiation_
+> Whenever we create a class Template, only the data members and the member functions that we have called are instantiated. This is known as _Lazy Instantiation_.
+
+<br>
 
 
 
