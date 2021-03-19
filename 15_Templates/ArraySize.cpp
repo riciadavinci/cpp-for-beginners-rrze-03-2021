@@ -18,18 +18,21 @@
 
 
 // TODO: Write a 'constexpr' function template 'size()' that returns the size of a given array.
+template<typename T, size_t N>   // Non-Type Template Parameter(NTTP)
+inline size_t size(T (&array)[N]){
+   return N;
+}
 
 
 int main()
 {
-   /*
    int         array1[4];
    double      array2[6];
    std::string array3[9];
 
-   constexpr size_t size1( size( array1 ) );
-   constexpr size_t size2( size( array2 ) );
-   constexpr size_t size3( size( array3 ) );
+   const size_t size1( size( array1 ) );
+   const size_t size2( size( array2 ) );
+   const size_t size3( size( array3 ) );
 
    if( size1 != 4UL || size2 != 6UL || size3 != 9UL )
    {
@@ -39,7 +42,6 @@ int main()
    {
       std::cout << "size() works!\n";
    }
-   */
 
    return EXIT_SUCCESS;
 }

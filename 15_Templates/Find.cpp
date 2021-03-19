@@ -29,20 +29,34 @@ using namespace std::string_literals;
 //       parameters, one represents the type of the value to find. Use your function to find a
 //       given value in a 'std::vector<int>' and a 'std::list<std::string>'.
 
+// Don't want const for the first iterator since we need to increment it
+// But it is okay to keep the last iterator as const qualified
+template<typename InputIterator, typename Type>
+InputIterator find(InputIterator first, const InputIterator last, const Type& value){
+   for( ; first != last; ++first){
+      if(*first == value){
+         return first;
+      }
+   }
+   return last;
+}
 
 int main()
 {
-   /*
    // Find a value in a std::vector<int>
    {
       std::vector<int> v{ 3, 5, 2, 7, 5, 4, 3 };
-      auto it = ::find( begin(v), end(v), 7 );
+      auto it = ::find( v.begin(), v.end(), 5 );
 
-      if( it != end(v) ) {
-         std::cout << "Found the value 7 in the vector!\n";
+      if( it != v.end() ) {
+         std::cout << "Found the value in the vector!\n";
+      }
+      else {
+         std::cout << "Didn't find it in the vector!\n";
       }
    }
 
+   /*
    // Find a value in a std::list<std::string>
    {
       std::list<std::string> l{ "Herb"s, "Bjarne"s, "Alex"s, "Nicolai"s };

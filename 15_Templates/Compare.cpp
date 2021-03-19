@@ -21,10 +21,25 @@
 // TODO: Write a generic 'compare()' function that returns -1 if the left-hand side argument is
 //       smaller, 0 if both arguments are equal, and 1 if the left-hand side argument is larger.
 
+template<typename T>
+int compare(const T& a, const T& b){
+   // // my solution   
+   // if(a > b){
+   //    return 1;
+   // }
+   // else if(a < b){
+   //    return -1;
+   // }
+   // else {
+   //    return 0;
+   // }
+
+   return (a > b) ? 1 : ((a < b) ? -1 : 0);
+}
+
 
 int main()
 {
-   /*
    {
       int i1 = 1;
       int i2 = 2;
@@ -48,7 +63,6 @@ int main()
          std::cout << "compare( std::string, std::string ) works!\n";
       }
    }
-   */
 
    return EXIT_SUCCESS;
 }
