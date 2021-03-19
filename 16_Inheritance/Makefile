@@ -21,7 +21,7 @@ BIN = $(SRC:.cpp=)
 
 
 # Rules
-default: Animal Command Function2 Library6 Observer Prototype Shape Strategy Visitor
+default: Animal Command Function2 Library6 Observer Prototype Shape ShapeStrategy Strategy Visitor
 
 Animal: Animal.cpp
 	$(CXX) $(CXXFLAGS) -o Animal Animal.cpp
@@ -43,6 +43,9 @@ Prototype: Prototype.cpp
 
 Shape: Shape.cpp
 	$(CXX) $(CXXFLAGS) -o Shape Shape.cpp
+
+ShapeStrategy: ShapeStrategy.cpp
+	$(CXX) $(CXXFLAGS) -o ShapeStrategy.cpp
 
 Strategy: Strategy.cpp
 	$(CXX) $(CXXFLAGS) -o Strategy Strategy.cpp
