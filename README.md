@@ -577,14 +577,253 @@ _**Concept:** Lazy Instantiation_
 
 <br>
 
-
-
-
 ---
 
 ### Day 5
 _**19-03-2021**_
 
+<br>
+
+_**Concept:** Nested templates as well as `using` declarations outside of the class templates require use of the `typename` keyword to tell the compiler that a certain type exists within the class._
+
+_Ex._
+```C++
+template< typename T >
+class Vector{
+using Iterator = T*;
+private:
+    /* Data Members come here */
+public:
+    /* Constructors and Member-functions come here */
+}; 
 
 
+// implementing a find function that uses this Iterator
+template<typename T>
+typename Vector<T>::Iterator find(typename Vector<T>::Iterator begin, typename Vector<T>::Iterator end, const T& value){
+    // find algorithm
+}
+```
 
+> If we don't use the `typename` keyword in front of the `Vector<T>::Iterator`, the compiler throw an error saying that this type does not exist. So to assure the compiler, we need to add this keyword (`typename`) and confirm that there is indeed a return type and/or function argument of this type!
+
+<br>
+
+_**Concept:** `public`, `protected`, and `private` access specifiers_
+> 
+
+<br>
+
+_**Concept:** The `virtual` keyword in front of a function in the base class states that further derived classes are free to override/change the implementation of this function in their class body._
+
+<br>
+
+_**Tip:** If you want to override a function which is also in the base class, then compulsorily use the `override` keyword._
+
+ [A good reference link](https://stackoverflow.com/questions/29760375/are-there-any-subtleties-in-using-both-the-virtual-and-override-keywords-in-c1)
+
+<br>
+
+_**Concept:** To stop anymore overriding/derivation of virtual functions/classes respectively, use the `final` keyword._
+
+_Ex._
+```C++
+struct Animal {
+std::string name_;
+virtual void make_noise() = 0;
+};
+
+struct Dog : public Animal {
+
+};
+
+
+```
+
+
+<br>
+
+_**Concept:** `__vptr__` (virtual table pointer) and Virtual Dispatch_
+> The compiler introduces/defines a "virtual table pointer" in the base class for all overrided functions within the derived classes of this class. Thus, the `__vptr__` resolves everything at run-time and calls the appropriate functions.
+
+> Only disadvantage of this function overriding is that keeping tab of this virtual table pointer and the table itself has a good amount of overhead and can slow down your program.
+
+<br>
+
+_**Tipp:** Never make these access specifiers dynamical_???
+
+<br>
+
+---
+
+#### OOP Gotchas (in C++):
+_**Foreword:** OOP is not bad. It's that it is not useful/good for everything. It's tool that is really good for specific tasks and bad for others. Use it wisely._ ;)
+
+Don't be discouraged though: _[Great Talk on OOP - CppCon 2019](https://www.youtube.com/watch?v=32tDTD9UJCE)_
+
+
+#####  1. <ins>Overloading and Overriding don't mix well in C++ when using ihneritance</ins>
+
+```C++
+struct Thing {
+    virtual void update(int);           // Function (1)
+    virtual void update(double);        // Function (2)
+};
+
+struct MyThing : public Thing {
+    void update(double) override;       // Function (3) [override of Function (2)]
+};
+
+int main(){
+    Thing t* = new Thing();
+    MyThing mt* = new Thing();
+
+    t->update(12);          // This calls Function (1): Expected behaviour
+    mt->update(12);         // This calls Function (3): Surprising behaviour!!!
+}
+```
+
+> Why you ask? Because when you use `mt->update(12)`, the `mt` pointer goes to/looks at the `class` "`MyThing`" first. And because it does not find an overloaded function in MyThing for `int`, it will implicitly convert the `12` to a `double` and call the 3rd version [Function (3)].
+>
+> To include overloads from the base class, you can use `using` declaration. Example: use `using Base::foo;` in the derived class to make sure that the overloaded function `foo` from the base class can be called.
+
+```C++
+struct Thing {
+    virtual void update(int);           // Function (1)
+    virtual void update(double);        // Function (2)
+};
+
+struct MyThing : public Thing {
+    using Thing::update;                // using declaration to include update from
+                                        // the Thing class (Base class)
+    void update(double) override;       // Function (3) [override of Function (2)]
+};
+
+int main(){
+    Thing t* = new Thing;
+    MyThing mt* = new Thing;
+
+    t->update(12);          // This calls Function (1): Expected behaviour
+    mt->update(12);         // This calls Function (1): Fixed it
+}
+```
+
+<br>
+
+#####  2. <ins>Avoid having default arguments on virtual functions!!!</ins>
+> Why?! Because it mixes static values with dynamic polymorphism (virtual function call resolution), leading to a function potentially using defalut values from a base virtual function in an overridden function at run-time, leading to undefine behaviour.
+
+```C++
+struct Thing {
+    virtual void update(int i = 10);    // Function (1)
+};
+
+struct MyThing: public Thing {
+    void update(int i = 20) override;   // Function (2)
+};
+
+
+int main(){
+    Thing* t  = new Thing;
+    Thing* mt = new MyThing;
+
+    t->update();                        // calls (1), i = 10 [Expected]
+    mt->update();                       // calls (2), i = 10 [Unexpected!!]
+}
+```
+
+> During compilation, the compiler sees `mt->update()` and thinks: it is a `Thing` object calling `update()` without any arguments, so I will set `i = 10` here. BUT, during run-time, the program resolves `mt` as a pointer to object `MyThing` and calls the overridden `update()` function from it, leading to taking `i = 10` as the defauly argument instead of `i = 20`.
+
+_Solution: If you absolutely need to use default arguments for virtual functions, provide an overloaded set of (virtual) functions._
+```C++
+struct Thing {
+    void update() { update(10); }
+    virtual void update(int i = 10);    // Function (1)
+};
+
+struct MyThing: public Thing {
+    using Thing::update;
+    void update(int i = 20) override;   // Function (2)
+};
+
+
+int main(){
+    Thing* t  = new Thing;
+    Thing* mt = new MyThing;
+
+    t->update();                        // calls (1), i = 10 [Expected]
+    mt->update();                       // calls (2), i = 10 [Unexpected!!]
+}
+```
+
+<br>
+
+#####  3. <ins>Don't create Arrays of Pointers with Abstract Class, always use the Base class it</ins>
+```C++
+struct Thing {
+    Thing(int i ) : x(i) {}
+    int x;
+}
+
+struct MyThing {
+    MyThing(int i, int j) : Thing(i), y(j) {}
+    int y;
+};
+
+
+int main(){
+    myThing mt[] = { {1,2}, {3,4}, {5,6} };
+    Thing* t = mt;
+
+    t[1].x = 7;     // This should update mt[1].x, right?
+                    // NO, it doesn't
+                    // Instead mt[0].y is changed to 7
+                    // Thus mt becomes: { {1,7}, {3,4}, {5,6} }
+}
+```
+
+> Why?! Because when you assign `t = mt`, the pointer `t` is of class `Thing` and can only hold 4 bytes of info (beacuse of one `int x`), so when you do `t[1]`, it is actually accessing `mt[0]`. Hence `t[1].x` mutates `mt[0].y` to `7`.
+
+_**Note:** Never assign a pointer to an array of derived class objects to a pointer to its base._
+
+_**Note:** In interfaces, use raw pointers to denote individual objects (only)._
+
+<br>
+
+---
+
+<br>
+
+_**Side Note:**_
+
+- Stuttgart and Vienna computing centers have an intermediate course that is an extension of this!
+
+- Advanced cpp course offered by RRZE in 2nd Half of 2021 (hopefully!)
+
+<br>
+
+_**Links:**_
+- [Link to the complete course material](https://faubox.rrze.uni-erlangen.de/dl/fiUYFHHUjhqnrb4oPPL79WYu/CppTraining_2021_03_15_RRZE_full.zip)
+
+<br>
+
+_**Literature:**_
+1. C++ Primers and References:
+    - C++ Primer by Lippman, Lajoie, Moo (800 pages -_-) ***
+    - A Tour of C++ 2nd Ed. by Bjarne Stroustrup (256 pages => only new and necessary stuff included here. small but very dense in info) **
+
+2. Advanced C++ Programming:
+    - Effective Modern C++ (C++2014) by Scott Meyers *** : good for C++11 and 14 Features
+
+    - Effective STL by Scott Meyers (C++98)
+    - C++ Templates by Vandevoorde, Josuttis, Gregor (C++17) [a.k.a Bible for Templates]
+
+3. C++ Software Design:
+    - Large-Sacle C++ by John Lakos [get the version with picture of Dam]
+
+4. Refactoring and Testing:
+    - Modern C++ Programming with Test-Driven Development by Jeff Langr (Only for C++11) [a very good intro to TDD]
+
+5. Professional Programming (not limited to C++, but in General applicable to SD):
+    - The Pragmatic Programmer by David Thomas, Andrew Hunt (2nd Ed.) *****
+    - The Clean Coder by Robert C. Martin ***
