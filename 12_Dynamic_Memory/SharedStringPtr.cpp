@@ -22,21 +22,69 @@ using namespace std::string_literals;
 
 class SharedStringPtr
 {
- public:
-   SharedStringPtr();
-   SharedStringPtr( std::string* ptr );
-   SharedStringPtr( SharedStringPtr const& s );
+public:
+    // default constructor
+    SharedStringPtr() = default;
 
-   ~SharedStringPtr();
+    // Resource constructor
+    explicit SharedStringPtr( std::string* ptr )
+      : ptr_ { ptr }
+    {
+      // if(ptr_) is short for if(ptr_ != nullptr)
+      if(ptr_){
+        uses_ = new std::size_t(1);
+      }
+    }
 
-   SharedStringPtr& operator=( SharedStringPtr const& s );
 
-   std::string& operator* () const;
-   std::string* operator->() const;
+    // copy constructor
+    SharedStringPtr( const SharedStringPtr& s )
+      : ptr_  ( s.ptr_  )
+      , uses_ ( s.uses_ )
+    {
+      // if s does not manage any resource, 
+      // this object will also have null values and uses_ (reference count)
+      // will be zero
+      increment();
+    }
 
- private:
-   std::string* ptr_;
-   std::size_t* uses_;
+    // destructor
+    ~SharedStringPtr(){
+      decrement();
+    }
+
+    SharedStringPtr& operator=( const SharedStringPtr& s ){
+      decrement();
+
+      ptr_ = s.ptr_;
+      uses_ = s.uses_;
+
+      increment();
+
+      return *this;
+    }
+
+
+    std::string& operator* () const { return *ptr_; }
+    std::string* operator->() const { return  ptr_; }
+
+private:
+    std::string* ptr_ { nullptr };    // Resource
+    std::size_t* uses_ { nullptr };   // Reference count
+    
+    // Helper function
+    void decrement(){
+      if( uses_ && --(*uses_) == 0U){
+        delete uses_;
+        delete ptr_; 
+      }
+    }
+
+    void increment(){
+      if(uses_){
+        ++(*uses_);
+      }
+    }
 };
 
 
@@ -45,15 +93,15 @@ class SharedStringPtr
 
 int main()
 {
-   /*
-   SharedStringPtr ssptr1( new std::string( "Bjarne"s ) );
-   SharedStringPtr ssptr2( ssptr1 );
+   
+    SharedStringPtr ssptr1( new std::string( "Bjarne"s ) );
+    // SharedStringPtr ssptr2( ssptr1 );
 
-   std::cout << "\n"
-             << " *ssptr1 = \"" << *ssptr1 << "\"\n"
-             << " *ssptr2 = \"" << *ssptr2 << "\"\n"
-             << "\n";
-   */
+    std::cout << "\n"
+              << " *ssptr1 = \"" << *ssptr1 << "\"\n"
+              << " *ssptr2 = \"" << *ssptr1 << "\"\n"
+              << "\n";
 
-   return EXIT_SUCCESS;
+
+    return EXIT_SUCCESS;
 }
