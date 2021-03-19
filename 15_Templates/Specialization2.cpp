@@ -24,6 +24,53 @@ struct IsConst
 {};
 
 
+// This is a specialization of the above class template
+// <> / angle brackets after the struct/class name creates
+// the class specialization.
+// If a class T is passed to IsConst, and it const qualified,
+// then it will return true. Else, it will return false
+template< typename T >
+struct IsConst<const T>
+   : public std::true_type
+{};
+
+
+// Another advantage is that the above code to check is for `const` qualified
+// or not at compile time. In comparison, if else statements to implement this
+// will be run-time, since if else is a run-time construct
+// Similarly, for pattern matching, we can do the following:
+/*
+// for reference
+template< typename T >
+struct IsConst<T&>
+
+// for pointer
+template< typename T >
+struct IsConst<T*>
+*/
+
+
+// Also, we can check if a certain variable is of a certain type
+// eg: IsIntegral
+/*
+
+template< typename T >
+struct IsIntegral
+   : public std::false_type
+{}
+
+template< typename T >
+struct IsIntegral<int>
+   : public std::true_type
+{}
+
+*/
+
+// Here, the above struct will return true only if the variable is an int,
+// else it will return false. But you will also need to implement it for 
+// short, long, long long , unsigned, etc. to cover all integrals
+
+
 // TODO: Implement all necessary specializations for the IsConst type trait.
 
 

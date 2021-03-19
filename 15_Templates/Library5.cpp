@@ -295,13 +295,15 @@ std::ostream& operator<<( std::ostream& os, const Book& book )
 //=================================================================================================
 
 // TODO: Add the 'BookCompare' template parameter
+
+template<typename BookCompare>
 class Library
 {
  private:
-   using Books = std::map<Book,unsigned int>;
+   using Books = std::map<Book,unsigned int, BookCompare>;
 
  public:
-   using const_iterator = Books::const_iterator;
+   using const_iterator = typename Books::const_iterator;
 
    void addBook( const Book& book, unsigned int count = 1U )
    {
@@ -327,7 +329,8 @@ class Library
    Books books_;
 };
 
-std::ostream& operator<<( std::ostream& os, const Library& library )
+template<typename BookCompare>
+std::ostream& operator<<( std::ostream& os, const Library<BookCompare>& library )
 {
    for( const auto& book : library ) {
       os << book.first << ", Count:" << book.second << "\n";
@@ -342,6 +345,12 @@ std::ostream& operator<<( std::ostream& os, const Library& library )
 //=================================================================================================
 
 // TODO: Implement the 'CompareByISBN' functors
+struct CompareByISBN{
+   template<typename B>
+   bool operator()( const B& b1, const B& b2 ) const {
+      return b1.isbn() < b2.isbn();
+   }
+};
 
 
 //=================================================================================================
@@ -349,6 +358,18 @@ std::ostream& operator<<( std::ostream& os, const Library& library )
 //=================================================================================================
 
 // TODO: Implement the 'CompareByAuthorAndTitle' functors
+struct CompareByAuthorAndTitle{
+   template<typename B>
+   bool operator()( const B& b1, const B& b2 ) const {
+      // // My implementation
+      // return (b1.author() == b2.author()) ? b1.title() < b2.title() : b1.author() < b2.author();
+      
+      // Klaus' implementation (both work)
+      return (b1.author() < b2.author() ||
+               (b1.author() == b2.author() && b1.title() < b2.title()));
+   }
+};
+
 
 
 //=================================================================================================
@@ -357,7 +378,8 @@ std::ostream& operator<<( std::ostream& os, const Library& library )
 
 int main()
 {
-   Library library;
+   // Library<CompareByISBN> library;
+   Library<CompareByAuthorAndTitle> library;
 
    Book book1( "Vom Winde verdreht", Author( "Homer", "Simpson" ), ISBN( "1X23456" ) );
    book1.setPrice( 12.5 );

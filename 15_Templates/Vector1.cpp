@@ -202,7 +202,6 @@ std::ostream& operator<<( std::ostream& os, const Vector<T>& sv )
 
 int main()
 {
-   /*
    Vector<std::string> sv;
    sv.push_back( "Bjarne"s );
    sv.push_back( "Herb"s );
@@ -219,7 +218,6 @@ int main()
    sv2 = std::move(sv3);
 
    std::cout << "\n" << sv2 << "\n\n";
-   */
 
    return EXIT_SUCCESS;
 }
